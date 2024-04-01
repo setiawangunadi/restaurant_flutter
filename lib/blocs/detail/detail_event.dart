@@ -15,3 +15,9 @@ class DoAddFavorite extends DetailEvent {
 
   DoAddFavorite(this.favoriteRestaurant, this.detailRestaurantResponseModel);
 }
+
+class DoDeleteFavorite extends DetailEvent {
+  final int index;
+
+  DoDeleteFavorite(this.index);
+}

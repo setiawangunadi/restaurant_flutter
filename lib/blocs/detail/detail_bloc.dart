@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:meta/meta.dart';
 import 'package:restaurant/config/exception/network.dart';
 import 'package:restaurant/config/exception/session_expired.dart';
 import 'package:restaurant/data/models/detail_restaurant_response_model.dart';
@@ -19,6 +18,7 @@ class DetailBloc extends Bloc<DetailEvent, DetailState> {
   DetailBloc() : super(DetailInitial()) {
     on<GetDetailRestaurant>(_getDetailRestaurant);
     on<DoAddFavorite>(_doAddFavorite);
+    on<DoDeleteFavorite>(_doDeleteFavorite);
   }
 
   Future<void> _getDetailRestaurant(
@@ -66,11 +66,40 @@ class DetailBloc extends Bloc<DetailEvent, DetailState> {
           box.values.firstWhereOrNull((item) => item.id == restaurant.id);
       if (existingItem == null) {
         box.add(restaurant);
-        emit(OnSuccessAddFavorite());
+        await box.close();
+        emit(OnSuccessAddFavorite("Successfully added to favorites"));
       } else {
+        await box.close();
         emit(OnErrorDetail("Restaurant Has Been On Your List Favorite"));
         emit(OnSuccessDetail(event.detailRestaurantResponseModel));
       }
+    } on SessionExpired catch (e) {
+      emit(OnErrorDetail(e.message));
+    } on Network catch (e) {
+      emit(OnErrorDetail(e.responseMessage));
+    } catch (e) {
+      emit(OnErrorDetail(e.toString()));
+    }
+  }
+
+  Future<void> _doDeleteFavorite(
+    DoDeleteFavorite event,
+    Emitter<DetailState> emit,
+  ) async {
+    try {
+      emit(OnLoadingAddFavorite());
+
+      final Box<FavoriteRestaurant> box =
+          Hive.box<FavoriteRestaurant>('favorite');
+      if (event.index < box.length) {
+        var key = box.keyAt(event.index);
+        await box.delete(key);
+        emit(OnSuccessDeleteFavorite("Successfully deleted"));
+      } else {
+        emit(OnErrorDetail("Invalid Index"));
+      }
+
+      await box.close();
     } on SessionExpired catch (e) {
       emit(OnErrorDetail(e.message));
     } on Network catch (e) {

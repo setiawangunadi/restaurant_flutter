@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restaurant/blocs/home/home_bloc.dart';
+import 'package:restaurant/config/app_routes.dart';
 import 'package:restaurant/config/widget/toast/custom_toast.dart';
 import 'package:restaurant/screens/components/card_item.dart';
 import 'package:restaurant/screens/components/text_title.dart';
@@ -42,10 +43,16 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            actions: const [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Icon(Icons.favorite),
+            actions: [
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.listFavorite,
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Icon(Icons.favorite),
+                ),
               )
             ],
           ),
@@ -114,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           description: state.listRestaurantResponseModel
                                   .restaurants?[index].description ??
                               "",
+                          detailType: "home",
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         ),
                       ),
@@ -146,6 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           description: state.searchRestaurantResponseModel
                                   .restaurants?[index].description ??
                               "",
+                          detailType: "home",
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         ),
                       ),

@@ -9,6 +9,8 @@ class CardItem extends StatelessWidget {
   final String? rating;
   final String? pictureId;
   final String? description;
+  final String? detailType;
+  final int? index;
   final EdgeInsetsGeometry? padding;
 
   const CardItem({
@@ -19,6 +21,8 @@ class CardItem extends StatelessWidget {
     this.rating,
     this.pictureId,
     this.description,
+    this.detailType,
+    this.index,
     this.padding,
   });
 
@@ -30,6 +34,8 @@ class CardItem extends StatelessWidget {
         AppRoutes.detail,
         arguments: {
           "id": id,
+          "detailType" : detailType,
+          "index" : index,
         },
       ),
       child: Container(

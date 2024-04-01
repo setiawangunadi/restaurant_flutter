@@ -11,8 +11,15 @@ import 'package:shimmer/shimmer.dart';
 
 class DetailScreen extends StatefulWidget {
   final String id;
+  final String detailType;
+  final int? index;
 
-  const DetailScreen({super.key, required this.id});
+  const DetailScreen({
+    super.key,
+    required this.id,
+    required this.detailType,
+    this.index,
+  });
 
   @override
   State<DetailScreen> createState() => _DetailScreenState();
@@ -35,6 +42,11 @@ class _DetailScreenState extends State<DetailScreen> {
     return BlocConsumer<DetailBloc, DetailState>(
       listener: (context, state) {
         if (state is OnSuccessAddFavorite) {
+          AppToast.show(context, state.message ?? "", Colors.green);
+          Navigator.pushNamed(context, AppRoutes.home);
+        }
+        if (state is OnSuccessDeleteFavorite) {
+          AppToast.show(context, state.message ?? "", Colors.green);
           Navigator.pushNamed(context, AppRoutes.home);
         }
         if (state is OnErrorDetail) {
@@ -84,37 +96,47 @@ class _DetailScreenState extends State<DetailScreen> {
                             Align(
                               alignment: Alignment.bottomRight,
                               child: GestureDetector(
-                                onTap: () => detailBloc.add(
-                                  DoAddFavorite(
-                                    FavoriteRestaurant(
-                                      id: state.detailRestaurantResponseModel
-                                              .restaurant?.id ??
-                                          "",
-                                      rating: state
-                                              .detailRestaurantResponseModel
-                                              .restaurant
-                                              ?.rating ??
-                                          0,
-                                      name: state.detailRestaurantResponseModel
-                                              .restaurant?.name ??
-                                          "",
-                                      city: state.detailRestaurantResponseModel
-                                              .restaurant?.city ??
-                                          "",
-                                      description: state
-                                              .detailRestaurantResponseModel
-                                              .restaurant
-                                              ?.description ??
-                                          "",
-                                      pictureId: state
-                                              .detailRestaurantResponseModel
-                                              .restaurant
-                                              ?.pictureId ??
-                                          "",
-                                    ),
-                                    state.detailRestaurantResponseModel,
-                                  ),
-                                ),
+                                onTap: widget.detailType == "home"
+                                    ? () => detailBloc.add(
+                                          DoAddFavorite(
+                                            FavoriteRestaurant(
+                                              id: state
+                                                      .detailRestaurantResponseModel
+                                                      .restaurant
+                                                      ?.id ??
+                                                  "",
+                                              rating: state
+                                                      .detailRestaurantResponseModel
+                                                      .restaurant
+                                                      ?.rating ??
+                                                  0,
+                                              name: state
+                                                      .detailRestaurantResponseModel
+                                                      .restaurant
+                                                      ?.name ??
+                                                  "",
+                                              city: state
+                                                      .detailRestaurantResponseModel
+                                                      .restaurant
+                                                      ?.city ??
+                                                  "",
+                                              description: state
+                                                      .detailRestaurantResponseModel
+                                                      .restaurant
+                                                      ?.description ??
+                                                  "",
+                                              pictureId: state
+                                                      .detailRestaurantResponseModel
+                                                      .restaurant
+                                                      ?.pictureId ??
+                                                  "",
+                                            ),
+                                            state.detailRestaurantResponseModel,
+                                          ),
+                                        )
+                                    : () => detailBloc.add(
+                                          DoDeleteFavorite(widget.index ?? 0),
+                                        ),
                                 child: Container(
                                   padding: const EdgeInsets.all(8.0),
                                   margin: const EdgeInsets.only(
@@ -125,10 +147,12 @@ class _DetailScreenState extends State<DetailScreen> {
                                     color: Colors.red,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
-                                    Icons.favorite,
+                                  child: Icon(
+                                    widget.detailType == "home"
+                                        ? Icons.favorite
+                                        : Icons.delete_forever,
                                     color: Colors.white,
-                                    size: 32,
+                                    size: 24,
                                   ),
                                 ),
                               ),
@@ -151,9 +175,11 @@ class _DetailScreenState extends State<DetailScreen> {
                                     color: Colors.red,
                                   ),
                                   const SizedBox(width: 4),
-                                  Text(state.detailRestaurantResponseModel
-                                          .restaurant?.address ??
-                                      ""),
+                                  Text(
+                                    state.detailRestaurantResponseModel
+                                            .restaurant?.address ??
+                                        "",
+                                  ),
                                 ],
                               ),
                               margin: const EdgeInsets.only(bottom: 8.0),

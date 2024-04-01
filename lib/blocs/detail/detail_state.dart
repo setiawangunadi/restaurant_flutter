@@ -15,7 +15,17 @@ class OnSuccessDetail extends DetailState {
   OnSuccessDetail(this.detailRestaurantResponseModel);
 }
 
-class OnSuccessAddFavorite extends DetailState {}
+class OnSuccessAddFavorite extends DetailState {
+  final String? message;
+
+  OnSuccessAddFavorite(this.message);
+}
+
+class OnSuccessDeleteFavorite extends DetailState {
+  final String? message;
+
+  OnSuccessDeleteFavorite(this.message);
+}
 
 class OnErrorDetail extends DetailState {
   final String? errorMessage;
