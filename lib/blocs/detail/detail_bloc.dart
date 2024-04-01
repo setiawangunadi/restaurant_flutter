@@ -1,8 +1,12 @@
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:restaurant/config/exception/network.dart';
 import 'package:restaurant/config/exception/session_expired.dart';
 import 'package:restaurant/data/models/detail_restaurant_response_model.dart';
+import 'package:restaurant/data/models/restaurant_favorite_model.dart';
 import 'package:restaurant/data/repositories/restaurant_repository.dart';
 
 part 'detail_event.dart';
@@ -14,6 +18,7 @@ class DetailBloc extends Bloc<DetailEvent, DetailState> {
 
   DetailBloc() : super(DetailInitial()) {
     on<GetDetailRestaurant>(_getDetailRestaurant);
+    on<DoAddFavorite>(_doAddFavorite);
   }
 
   Future<void> _getDetailRestaurant(
@@ -30,6 +35,41 @@ class DetailBloc extends Bloc<DetailEvent, DetailState> {
         var detailRestaurant =
             DetailRestaurantResponseModel.fromJson(response.data);
         emit(OnSuccessDetail(detailRestaurant));
+      }
+    } on SessionExpired catch (e) {
+      emit(OnErrorDetail(e.message));
+    } on Network catch (e) {
+      emit(OnErrorDetail(e.responseMessage));
+    } catch (e) {
+      emit(OnErrorDetail(e.toString()));
+    }
+  }
+
+  Future<void> _doAddFavorite(
+    DoAddFavorite event,
+    Emitter<DetailState> emit,
+  ) async {
+    try {
+      emit(OnLoadingAddFavorite());
+      final Box<FavoriteRestaurant> box =
+          Hive.box<FavoriteRestaurant>('favorite');
+
+      final restaurant = FavoriteRestaurant(
+        id: event.favoriteRestaurant.id,
+        rating: event.favoriteRestaurant.rating,
+        name: event.favoriteRestaurant.name,
+        city: event.favoriteRestaurant.city,
+        description: event.favoriteRestaurant.description,
+        pictureId: event.favoriteRestaurant.pictureId,
+      );
+      final existingItem =
+          box.values.firstWhereOrNull((item) => item.id == restaurant.id);
+      if (existingItem == null) {
+        box.add(restaurant);
+        emit(OnSuccessAddFavorite());
+      } else {
+        emit(OnErrorDetail("Restaurant Has Been On Your List Favorite"));
+        emit(OnSuccessDetail(event.detailRestaurantResponseModel));
       }
     } on SessionExpired catch (e) {
       emit(OnErrorDetail(e.message));
