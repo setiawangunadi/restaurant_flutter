@@ -97,6 +97,8 @@ class ServiceNetwork {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
         throw messageDefault;
+      case DioExceptionType.connectionError:
+        throw messageDefault;
       case DioExceptionType.sendTimeout:
         throw messageDefault;
       case DioExceptionType.receiveTimeout:

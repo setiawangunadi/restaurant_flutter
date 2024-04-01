@@ -13,6 +13,13 @@ class OnSuccessHome extends HomeState {
   OnSuccessHome(this.listRestaurantResponseModel);
 }
 
+
+class OnSuccessSearch extends HomeState {
+  final SearchRestaurantResponseModel searchRestaurantResponseModel;
+
+  OnSuccessSearch(this.searchRestaurantResponseModel);
+}
+
 class OnErrorHome extends HomeState {
   final String? errorMessage;
 
