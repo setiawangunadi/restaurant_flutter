@@ -9,6 +9,7 @@ import 'package:restaurant/screens/detail_screen.dart';
 import 'package:restaurant/screens/home_screen.dart';
 import 'package:restaurant/screens/list_favorite_screen.dart';
 import 'package:restaurant/screens/list_menu_screen.dart';
+import 'package:restaurant/screens/setting_screen.dart';
 import 'package:restaurant/screens/splash_screen.dart';
 
 class AppRoutes {
@@ -17,6 +18,7 @@ class AppRoutes {
   static const String detail = '/detail';
   static const String listFoodAndDrink = '/list-food-drink';
   static const String listFavorite = '/list-favorite';
+  static const String settings = '/settings';
 
   final route = <String, WidgetBuilder>{
     AppRoutes.splash: (BuildContext context) {
@@ -57,13 +59,13 @@ class AppRoutes {
       );
     },
     AppRoutes.listFavorite: (BuildContext context) {
-      // var arguments =
-      //     ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-
       return BlocProvider(
         create: (context) => ListFavoriteBloc(),
         child: const ListFavoriteScreen(),
       );
+    },
+    AppRoutes.settings: (BuildContext context) {
+      return const SettingScreen();
     },
   };
 }

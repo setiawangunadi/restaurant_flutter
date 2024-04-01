@@ -32,9 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocConsumer<HomeBloc, HomeState>(
       listener: (context, state) {
         if (state is OnSuccessHome) {
-          setState(() {
-            isSearchMode = false;
-          });
+          homeBloc.add(DoSetNotification(state.listRestaurantResponseModel));
         }
         if (state is OnErrorHome) {
           AppToast.show(context, state.errorMessage ?? "", Colors.red);
@@ -43,17 +41,25 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             actions: [
               GestureDetector(
                 onTap: () => Navigator.pushNamed(
                   context,
                   AppRoutes.listFavorite,
                 ),
+                child: const Icon(Icons.favorite),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.settings,
+                ),
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Icon(Icons.favorite),
+                  child: Icon(Icons.settings),
                 ),
-              )
+              ),
             ],
           ),
           body: SingleChildScrollView(

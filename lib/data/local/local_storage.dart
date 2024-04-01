@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 
-enum StorageConstants { favorite }
+enum StorageConstants { favorite, settings }
 
 class LocalStorage {
   LocalStorage();
