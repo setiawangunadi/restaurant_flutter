@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
             const Duration(seconds: 2),
             () => Navigator.pushNamedAndRemoveUntil(
               context,
-              AppRoutes.navigation,
+              AppRoutes.home,
               (route) => false,
             ),
           );

@@ -6,16 +6,38 @@ import 'package:provider/provider.dart';
 import 'package:restaurant/config/helper/scheduling_provider.dart';
 import 'package:restaurant/config/widget/dialog/custom_dialog.dart';
 import 'package:restaurant/config/widget/platform/platform_widget.dart';
+import 'package:restaurant/data/local/favorite_storage.dart';
 
-class SettingScreen extends StatelessWidget {
+class SettingScreen extends StatefulWidget {
   static const String settingsTitle = 'Settings';
 
   const SettingScreen({Key? key}) : super(key: key);
 
+  @override
+  State<SettingScreen> createState() => _SettingScreenState();
+}
+
+class _SettingScreenState extends State<SettingScreen> {
+  bool isActive = false;
+
+  @override
+  void initState() {
+    initialData();
+    super.initState();
+  }
+
+  initialData() async {
+    bool isNotification =
+        await FavoriteStorage.getStatusNotification() ?? false;
+    setState(() {
+      isActive = isNotification;
+    });
+  }
+
   Widget _buildAndroid(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(settingsTitle),
+        title: const Text(SettingScreen.settingsTitle),
       ),
       body: _buildList(context),
     );
@@ -24,7 +46,7 @@ class SettingScreen extends StatelessWidget {
   Widget _buildIos(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
-        middle: Text(settingsTitle),
+        middle: Text(SettingScreen.settingsTitle),
       ),
       child: _buildList(context),
     );
@@ -41,11 +63,20 @@ class SettingScreen extends StatelessWidget {
                 trailing: Consumer<SchedulingProvider>(
                   builder: (context, scheduled, _) {
                     return Switch.adaptive(
-                      value: scheduled.isScheduled,
+                      value: isActive,
                       onChanged: (value) async {
                         if (Platform.isIOS) {
-                          customDialog(context);
+                          Future.delayed(
+                            const Duration(seconds: 1),
+                            () => customDialog(context),
+                          );
                         } else {
+                          setState(() {
+                            isActive = !isActive;
+                          });
+                          await FavoriteStorage.setJSON(
+                            {"notification": value},
+                          );
                           scheduled.scheduledNews(value);
                         }
                       },

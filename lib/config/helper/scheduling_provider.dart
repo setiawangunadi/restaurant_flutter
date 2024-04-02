@@ -8,18 +8,28 @@ class SchedulingProvider extends ChangeNotifier {
   bool get isScheduled => _isScheduled;
 
   Future<bool> scheduledNews(bool value) async {
+    const TimeOfDay everydayTime = TimeOfDay(hour: 11, minute: 00);
+    DateTime now = DateTime.now();
+    DateTime everydayDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      everydayTime.hour,
+      everydayTime.minute,
+    );
     _isScheduled = value;
     if (_isScheduled) {
-      print('Scheduling News Activated');
+      print('Scheduling Activated');
       notifyListeners();
       return await AndroidAlarmManager.oneShotAt(
-          DateTime.now().add(const Duration(seconds: 5)),
-          2,
-          BackgroundService.callback,
-          exact: true,
-          wakeup: true);
+        everydayDateTime,
+        2,
+        BackgroundService.callback,
+        exact: true,
+        wakeup: true,
+      );
     } else {
-      print('Scheduling News Canceled');
+      print('Scheduling Canceled');
       notifyListeners();
       return await AndroidAlarmManager.cancel(1);
     }

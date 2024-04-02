@@ -64,6 +64,13 @@ class _DetailScreenState extends State<DetailScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              leading: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, AppRoutes.home);
+                },
+                child: const Icon(Icons.arrow_back),
+              ),
               centerTitle: true,
             ),
             body: StackWithProgress(

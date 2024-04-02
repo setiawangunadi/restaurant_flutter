@@ -32,8 +32,15 @@ class AppRoutes {
       );
     },
     AppRoutes.home: (BuildContext context) {
-      return BlocProvider(
-        create: (context) => HomeBloc(),
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider<HomeBloc>(
+            create: (context) => HomeBloc(),
+          ),
+          Provider<SchedulingProvider>(
+            create: (context) => SchedulingProvider(),
+          ),
+        ],
         child: const HomeScreen(),
       );
     },
@@ -69,7 +76,10 @@ class AppRoutes {
       );
     },
     AppRoutes.settings: (BuildContext context) {
-      return const SettingScreen();
+      return ChangeNotifierProvider<SchedulingProvider>(
+        create: (_) => SchedulingProvider(),
+        child: const SettingScreen(),
+      );
     },
     AppRoutes.navigation: (BuildContext context) {
       return MultiBlocProvider(

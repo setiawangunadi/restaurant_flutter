@@ -77,7 +77,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   void initState() {
     super.initState();
-    _notificationHelper.configureSelectNotificationSubject(AppRoutes.detail);
+    _notificationHelper.configureSelectNotificationSubject(
+      context,
+      AppRoutes.detail,
+    );
   }
 
   // @override

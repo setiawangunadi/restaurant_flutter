@@ -52,9 +52,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   AppRoutes.listFavorite,
                 ),
+                child: const Icon(Icons.favorite),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.settings,
+                  );
+                },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Icon(Icons.favorite),
+                  child: Icon(Icons.settings),
                 ),
               ),
             ],
