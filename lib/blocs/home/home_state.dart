@@ -19,12 +19,6 @@ class OnSuccessSearch extends HomeState {
   OnSuccessSearch(this.searchRestaurantResponseModel);
 }
 
-class OnSuccessSetNotification extends HomeState {
-  final String? id;
-
-  OnSuccessSetNotification(this.id);
-}
-
 class OnErrorHome extends HomeState {
   final String? errorMessage;
 

@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:restaurant/blocs/detail/detail_bloc.dart';
 import 'package:restaurant/blocs/home/home_bloc.dart';
 import 'package:restaurant/blocs/list_favorite/list_favorite_bloc.dart';
 import 'package:restaurant/blocs/list_menu/list_menu_bloc.dart';
 import 'package:restaurant/blocs/splash/splash_bloc.dart';
+import 'package:restaurant/config/helper/scheduling_provider.dart';
 import 'package:restaurant/screens/detail_screen.dart';
 import 'package:restaurant/screens/home_screen.dart';
 import 'package:restaurant/screens/list_favorite_screen.dart';
 import 'package:restaurant/screens/list_menu_screen.dart';
+import 'package:restaurant/screens/navigation_screen.dart';
 import 'package:restaurant/screens/setting_screen.dart';
 import 'package:restaurant/screens/splash_screen.dart';
 
 class AppRoutes {
-  static const String home = '/';
+  static const String navigation = '/';
+  static const String home = '/home';
   static const String splash = '/splash';
   static const String detail = '/detail';
   static const String listFoodAndDrink = '/list-food-drink';
@@ -66,6 +70,19 @@ class AppRoutes {
     },
     AppRoutes.settings: (BuildContext context) {
       return const SettingScreen();
+    },
+    AppRoutes.navigation: (BuildContext context) {
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider<HomeBloc>(
+            create: (context) => HomeBloc(),
+          ),
+          Provider<SchedulingProvider>(
+            create: (context) => SchedulingProvider(),
+          ),
+        ],
+        child: const NavigationScreen(),
+      );
     },
   };
 }

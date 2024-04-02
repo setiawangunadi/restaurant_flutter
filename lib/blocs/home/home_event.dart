@@ -10,9 +10,3 @@ class DoSearchRestaurant extends HomeEvent {
 
   DoSearchRestaurant(this.query);
 }
-
-class DoSetNotification extends HomeEvent {
-  final ListRestaurantResponseModel dataRestaurant;
-
-  DoSetNotification(this.dataRestaurant);
-}

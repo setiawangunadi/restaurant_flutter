@@ -8,6 +8,8 @@ import 'package:restaurant/screens/components/text_title.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
+  static const String title = 'Home';
+
   const HomeScreen({super.key});
 
   @override
@@ -32,7 +34,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocConsumer<HomeBloc, HomeState>(
       listener: (context, state) {
         if (state is OnSuccessHome) {
-          homeBloc.add(DoSetNotification(state.listRestaurantResponseModel));
+          setState(() {
+            isSearchMode = true;
+          });
         }
         if (state is OnErrorHome) {
           AppToast.show(context, state.errorMessage ?? "", Colors.red);
@@ -48,16 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   AppRoutes.listFavorite,
                 ),
-                child: const Icon(Icons.favorite),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  AppRoutes.settings,
-                ),
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Icon(Icons.settings),
+                  child: Icon(Icons.favorite),
                 ),
               ),
             ],

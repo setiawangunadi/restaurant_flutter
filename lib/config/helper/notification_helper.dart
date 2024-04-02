@@ -1,21 +1,13 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:restaurant/config/app_routes.dart';
-import 'package:restaurant/data/models/received_notification_model.dart';
-import 'package:rxdart/subjects.dart';
-import 'package:timezone/timezone.dart' as tz;
+import 'dart:convert';
 
-final selectNotificationSubject = BehaviorSubject<String?>();
-final didReceiveLocalNotificationSubject =
-    BehaviorSubject<ReceivedNotification>();
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:restaurant/data/models/list_restaurant_response_model.dart';
+import 'package:restaurant/navigation.dart';
+import 'package:rxdart/rxdart.dart';
+
+final selectNotificationSubject = BehaviorSubject<String>();
 
 class NotificationHelper {
-  final FlutterLocalNotificationsPlugin notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-  static const _channelId = "01";
-  static const _channelName = "channel_01";
-  static const _channelDesc = "restaurant_app";
   static NotificationHelper? _instance;
 
   NotificationHelper._internal() {
@@ -24,133 +16,65 @@ class NotificationHelper {
 
   factory NotificationHelper() => _instance ?? NotificationHelper._internal();
 
-  Future<void> initNotification(
+  Future<void> initNotifications(
       FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
-    AndroidInitializationSettings initializationSettingsAndroid =
+    var initializationSettingsAndroid =
         const AndroidInitializationSettings('app_icon');
 
-    var initializationSettingsIOS = DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
-        onDidReceiveLocalNotification:
-            (int id, String? title, String? body, String? payload) async {
-          didReceiveLocalNotificationSubject.add(ReceivedNotification(
-              id: id, title: title, body: body, payload: payload));
-        });
+    var initializationSettingsIOS = const DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
 
     var initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    await notificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse:
-            (NotificationResponse notificationResponse) async {
-      final payload = notificationResponse.payload;
-      if (payload != null) {
-        debugPrint('notification payload: $payload');
-      }
-      selectNotificationSubject.add(payload);
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse details) async {
+      final payload = details.payload;
+      selectNotificationSubject.add(payload ?? 'empty payload');
     });
   }
 
-  void requestIOSPermissions(
-      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) {
-    flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+  Future<void> showNotification(
+      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+      Restaurant restaurant) async {
+    var channelId = "1";
+    var channelName = "channel_01";
+    var channelDescription = "restaurant channel";
+
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        channelId, channelName,
+        channelDescription: channelDescription,
+        importance: Importance.max,
+        priority: Priority.high,
+        ticker: 'ticker',
+        styleInformation: const DefaultStyleInformation(true, true));
+
+    var iOSPlatformChannelSpecifics = const DarwinNotificationDetails();
+    var platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics);
+
+    var titleNotification = restaurant.name;
+    var titleNews = restaurant.description;
+
+    await flutterLocalNotificationsPlugin.show(
+        0, titleNotification, titleNews, platformChannelSpecifics,
+        payload: json.encode(restaurant.toJson()));
   }
 
-  void configureDidReceiveLocalNotificationSubject(
-      {required BuildContext context, required String id}) {
-    didReceiveLocalNotificationSubject.stream
-        .listen((ReceivedNotification receivedNotification) async {
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) => CupertinoAlertDialog(
-          title: receivedNotification.title != null
-              ? Text(receivedNotification.title ?? "")
-              : null,
-          content: receivedNotification.body != null
-              ? Text(receivedNotification.body ?? "")
-              : null,
-          actions: [
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              child: const Text('Ok'),
-              onPressed: () async {
-                await Navigator.pushNamed(
-                  context,
-                  AppRoutes.detail,
-                  arguments: {
-                    "id": 1,
-                    "detailType": 'home',
-                  },
-                );
-              },
-            )
-          ],
-        ),
-      );
-    });
-  }
-
-  void configureSelectNotificationSubject(
-      {required BuildContext context, required String id}) {
-    selectNotificationSubject.stream.listen((String? payload) async {
-      Navigator.pushNamed(
-        context,
-        AppRoutes.detail,
-        arguments: {
-          "id": 1,
-          "detailType": 'home',
-        },
-      );
-    });
-  }
-
-  notificationDetails() {
-    return const NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channelId,
-          _channelName,
-          channelDescription: _channelDesc,
-          importance: Importance.max,
-        ),
-        iOS: DarwinNotificationDetails());
-  }
-
-  Future<void> scheduleNotification({
-    int id = 0,
-    String? title,
-    String? body,
-    String? payLoad,
-  }) async {
-    final timeZone = tz.getLocation('Asia/Jakarta');
-    final now = tz.TZDateTime.now(timeZone);
-    final scheduledTime = tz.TZDateTime(
-      timeZone,
-      now.year,
-      now.month,
-      now.day,
-      11,
-      00,
-      0,
-      0,
-    );
-    return notificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledTime,
-      await notificationDetails(),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+  void configureSelectNotificationSubject(String route) {
+    selectNotificationSubject.stream.listen(
+      (String payload) async {
+        var data = Restaurant.fromJson(json.decode(payload));
+        var restaurant = data;
+        Navigation.intentWithData(route, {
+          "id" : restaurant.id,
+          "detailType" : 'home',
+        });
+      },
     );
   }
 }

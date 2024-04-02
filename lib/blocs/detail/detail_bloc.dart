@@ -9,7 +9,6 @@ import 'package:restaurant/data/models/restaurant_favorite_model.dart';
 import 'package:restaurant/data/repositories/restaurant_repository.dart';
 
 part 'detail_event.dart';
-
 part 'detail_state.dart';
 
 class DetailBloc extends Bloc<DetailEvent, DetailState> {
@@ -54,6 +53,8 @@ class DetailBloc extends Bloc<DetailEvent, DetailState> {
       final Box<FavoriteRestaurant> box =
           Hive.box<FavoriteRestaurant>('favorite');
 
+      debugPrint("THIS BOX :$box");
+
       final restaurant = FavoriteRestaurant(
         id: event.favoriteRestaurant.id,
         rating: event.favoriteRestaurant.rating,
@@ -66,10 +67,8 @@ class DetailBloc extends Bloc<DetailEvent, DetailState> {
           box.values.firstWhereOrNull((item) => item.id == restaurant.id);
       if (existingItem == null) {
         box.add(restaurant);
-        await box.close();
         emit(OnSuccessAddFavorite("Successfully added to favorites"));
       } else {
-        await box.close();
         emit(OnErrorDetail("Restaurant Has Been On Your List Favorite"));
         emit(OnSuccessDetail(event.detailRestaurantResponseModel));
       }
@@ -98,8 +97,6 @@ class DetailBloc extends Bloc<DetailEvent, DetailState> {
       } else {
         emit(OnErrorDetail("Invalid Index"));
       }
-
-      await box.close();
     } on SessionExpired catch (e) {
       emit(OnErrorDetail(e.message));
     } on Network catch (e) {
