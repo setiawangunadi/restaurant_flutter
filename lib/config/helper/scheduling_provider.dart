@@ -8,21 +8,18 @@ class SchedulingProvider extends ChangeNotifier {
   bool get isScheduled => _isScheduled;
 
   Future<bool> scheduledNews(bool value) async {
-    const TimeOfDay everydayTime = TimeOfDay(hour: 11, minute: 00);
-    DateTime now = DateTime.now();
-    DateTime everydayDateTime = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      everydayTime.hour,
-      everydayTime.minute,
-    );
     _isScheduled = value;
     if (_isScheduled) {
       print('Scheduling Activated');
       notifyListeners();
-      return await AndroidAlarmManager.oneShotAt(
-        everydayDateTime,
+      return await AndroidAlarmManager.periodic(
+        startAt: DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          11,
+        ),
+        const Duration(hours: 24),
         2,
         BackgroundService.callback,
         exact: true,
@@ -31,7 +28,7 @@ class SchedulingProvider extends ChangeNotifier {
     } else {
       print('Scheduling Canceled');
       notifyListeners();
-      return await AndroidAlarmManager.cancel(1);
+      return await AndroidAlarmManager.cancel(2);
     }
   }
 }

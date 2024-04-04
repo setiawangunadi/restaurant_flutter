@@ -98,6 +98,9 @@ class _DetailScreenState extends State<DetailScreen> {
                               child: Image.network(
                                 "${Constants.baseUrlImageMedium}${state.detailRestaurantResponseModel.restaurant?.pictureId ?? ""}",
                                 fit: BoxFit.fill,
+                                errorBuilder: (_, __, ___) {
+                                  return const Icon(Icons.error_outline);
+                                },
                               ),
                             ),
                             Align(

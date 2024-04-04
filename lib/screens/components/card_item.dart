@@ -57,6 +57,9 @@ class CardItem extends StatelessWidget {
                       "${Constants.baseUrlImageLow}$pictureId",
                       width: MediaQuery.of(context).size.width * 0.2,
                       height: MediaQuery.of(context).size.height * 0.2,
+                      errorBuilder: (_, __, ___) {
+                        return const Icon(Icons.error_outline);
+                      },
                     ),
                   )
                 : const Padding(
