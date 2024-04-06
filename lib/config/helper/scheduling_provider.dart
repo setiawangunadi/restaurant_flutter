@@ -1,6 +1,7 @@
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:restaurant/config/helper/background_service.dart';
+import 'package:restaurant/config/helper/date_time_helper.dart';
 
 class SchedulingProvider extends ChangeNotifier {
   bool _isScheduled = false;
@@ -13,12 +14,7 @@ class SchedulingProvider extends ChangeNotifier {
       print('Scheduling Activated');
       notifyListeners();
       return await AndroidAlarmManager.periodic(
-        startAt: DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-          11,
-        ),
+        startAt: DateTimeHelper.format(),
         const Duration(hours: 24),
         2,
         BackgroundService.callback,
